@@ -1,0 +1,67 @@
+/* custom styling for my frontend though i have added some bootstrap styling 
+directly in html (ejs) files */
+
+body {
+    background-color: pink;
+}
+
+/* navbar */
+.navbar {
+    background-color: white;
+    /* height: 5rem; */
+}
+
+.fa-compass {
+    color: #fe424d;
+    font-size: 2rem;
+}
+
+/* footer */
+.f-info {
+    background-color: #e9ecef;
+    padding: 1rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    border-top: 1px solid #d0d4d9;
+}
+
+.f-info-socials,
+.f-info-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.f-info-links a {
+    color: #212529;
+    text-decoration: none;
+}
+
+.f-info-links a:hover {
+    text-decoration: underline;
+}
+
+/* index */
+.listing-card-link {
+    display: block;
+}
+
+.listing-card {
+    border: 0;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 0.35rem 1rem rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.listing-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.12);
+}
+
+.listing-card-img {
+    height: 14rem;
+    object-fit: cover;
+}
