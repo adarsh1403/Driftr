@@ -31,6 +31,21 @@ const listingRoutes = require("./routes/listing.js");
 // require review routes
 const reviewRoutes = require("./routes/review.js");
 
+// require user routes
+const userRoutes = require("./routes/user.js");
+
+const session = require("express-session");
+const flash = require("connect-flash");
+
+// require passport and passport-local for user authentication
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+
+// require user model for authentication
+const User = require("./models/user.js");
+
+
+
 // connecting to database  in asynchronous manner and defining the afterwork
 main()
   .then(() => {
@@ -66,10 +81,57 @@ app.engine("ejs", ejsMate);
 // middleware-> tells the express to serve static files (css,js,images,etc.) from current directory's public folder.
 app.use(express.static(path.join(__dirname, "public")));
 
+// middleware-> sets up session management with a secret key and configuration options.
+const sessionConfig = {
+  secret: "thisshouldbeabettersecret!",
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    httpOnly: true, // prevents client-side JavaScript from accessing the cookie, enhancing security against XSS attacks.
+    expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // expires in one week (miliseconds)
+    maxAge: 1000 * 60 * 60 * 24 * 7, // max age of cookie is one week
+  },
+};
+
+app.use(session(sessionConfig));
+app.use(flash());
+
+// middleware-> initializes Passport and sets up session handling for authentication.
+app.use(passport.initialize());
+app.use(passport.session());
+
+// configuring passport to use local strategy for authentication and to use the static authenticate method of the user model which is provided by passport-local-mongoose package
+passport.use(new LocalStrategy(User.authenticate()));
+
+// serializeUser determines which data of the user object should be stored in the session. The result of the serializeUser method is attached to the session as req.session.passport.user = {id: '...'}.
+passport.serializeUser(User.serializeUser());
+
+// deserializeUser is the counterpart of serializeUser. It takes the data that was stored in the session and turns it back into a full user object. This is typically done on every request to retrieve the user from the database based on the ID stored in the session.
+passport.deserializeUser(User.deserializeUser());
+
 // root route for app
 app.get("/", (req, res) => {
   res.send("Hi, I am root");
 });
+
+// middleware-> sets up res.locals variables for flash messages, making them available in all templates.
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  res.locals.currentUser = req.user; // makes the authenticated user available as currentUser in all templates
+  next();
+});
+
+// app.get("/fakeUser", async (req, res) => {
+//   const user = new User({
+//     email: "fak1e@example.com",
+//     username: "fakeUser"
+//   });
+//   await User.register(user, "chicken");
+//   console.log(user);
+//   res.send("Fake user created");
+// });
+
 
 // using listing routes for all routes starting with /listings 
 app.use("/listings", listingRoutes);
@@ -77,6 +139,8 @@ app.use("/listings", listingRoutes);
 // using review routes for all routes starting with /listings/:id/reviews
 app.use("/listings/:id/reviews", reviewRoutes);
 
+// using user routes for all routes starting with /users
+app.use("/", userRoutes);
 
 // universal (wildcard) route for catching unmatched routes
 // *splat -> modern express way of saying match any path

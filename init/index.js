@@ -1,7 +1,7 @@
 // script to initialize my databse listing model with fake data for starting 
 
 // requiring mongoose, temproary-data, listing model of my database
-const mongoose = require("mongoose");  
+const mongoose = require("mongoose");
 const initData = require("./data.js");
 const Listing = require("../models/listing.js");
 
@@ -26,6 +26,7 @@ async function main() {
 // function ->  deletes all previous data from my listing model and initialises wih new data
 const initDB = async () => {
   await Listing.deleteMany({});
+  initData.data = initData.data.map((listing) => ({ ...listing, owner: "69e49cbf5459072e6de795da" }));
   await Listing.insertMany(initData.data);
   console.log("data was initialized");
 };

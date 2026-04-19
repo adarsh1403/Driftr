@@ -15,7 +15,11 @@
         <img src="<%= listing.image %>" class="card-img-top rounded-3" alt="listing image"
           style="height: 19rem; object-fit: cover;" />
         <div class="card-body px-0 pt-3">
-
+          <p class="card-text mb-1">
+            <b> Owner:
+              <%= listing.owner.username %>
+            </b>
+          </p>
           <p class="card-text mb-1">
             <%= listing.description %>
           </p>
@@ -28,32 +32,39 @@
         </div>
       </div>
 
-      <div class="d-flex gap-3 mt-3">
-        <a href="/listings/<%= listing._id %>/edit" class="btn btn-danger btn-sm px-4">Edit</a>
-        <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE" class="m-0">
-          <button class="btn btn-dark btn-sm px-3">Delete</button>
-        </form>
-      </div>
+      <% if (currentUser && listing.owner._id.equals(currentUser._id)) { %>
+        <div class="d-flex gap-3 mt-3">
+          <a href="/listings/<%= listing._id %>/edit" class="btn btn-danger btn-sm px-4">Edit</a>
+          <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE" class="m-0">
+            <button class="btn btn-dark btn-sm px-3">Delete</button>
+          </form>
+        </div>
+        <% } %>
     </div>
 
     <!-- review form added for rating and comments -->
+
     <div class="col-12 col-md-10 col-lg-5 mt-4 mt-lg-0">
       <div class="card border-0 shadow-sm rounded-3">
         <div class="card-body p-4">
           <h4 class="mb-3">Leave a review</h4>
-          <form action="/listings/<%= listing._id %>/reviews" method="POST" class="needs-validation" novalidate>
-            <div class="mb-3">
-              <label for="rating" class="form-label">Rating</label>
-              <input type="range" min="1" max="5" id="rating" name="review[rating]" class="form-range" required>
-            </div>
-            <div class="mb-3">
-              <label for="comment" class="form-label">Comments</label>
-              <textarea name="review[comment]" id="comment" rows="4" class="form-control"
-                placeholder="Share your experience" required></textarea>
-              <div class="invalid-feedback">Please enter your comments.</div>
-            </div>
-            <button class="btn btn-dark px-4">Submit</button>
-          </form>
+          <% if (!currentUser) { %>
+            <p class="mb-0">Please log in to leave a review.</p>
+            <% } else { %>
+              <form action="/listings/<%= listing._id %>/reviews" method="POST" class="needs-validation" novalidate>
+                <div class="mb-3">
+                  <label for="rating" class="form-label">Rating</label>
+                  <input type="range" min="1" max="5" id="rating" name="review[rating]" class="form-range" required>
+                </div>
+                <div class="mb-3">
+                  <label for="comment" class="form-label">Comments</label>
+                  <textarea name="review[comment]" id="comment" rows="4" class="form-control"
+                    placeholder="Share your experience" required></textarea>
+                  <div class="invalid-feedback">Please enter your comments.</div>
+                </div>
+                <button class="btn btn-dark px-4">Submit</button>
+              </form>
+              <% } %>
         </div>
       </div>
     </div>
@@ -66,7 +77,10 @@
           <% listing.reviews.forEach(review=> { %>
             <div class="card mb-3">
               <div class="card-body">
-                <h5 class="card-title">Rating: <%= review.rating %> / 5</h5>
+                <h5 class="card-title">
+                  <%= review.author.username %>
+                </h5>
+                <p class="card-title">Rating: <%= review.rating %> / 5</p>
                 <p class="card-text">
                   <%= review.comment %>
                 </p>
