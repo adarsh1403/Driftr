@@ -31,6 +31,23 @@
           <input id="image" name="listing[image]" type="file" class="form-control" />
         </div>
 
+        <div class="mb-3">
+          <label class="form-label">Choose Categories (Optional)</label>
+          <div class="row">
+            <% const categories = ["Trending", "Rooms", "Iconic Cities", "Mountains", "Castles", "Amazing Pools", "Camping", "Farms", "Arctic", "Domes", "Boats"]; %>
+            <% for(let cat of categories) { %>
+              <div class="col-md-3 col-sm-4 col-6 mb-2">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="listing[category]" value="<%= cat %>" id="cat-<%= cat.replace(/\s+/g, '-') %>" <%= listing.category && listing.category.includes(cat) ? 'checked' : '' %>>
+                  <label class="form-check-label" for="cat-<%= cat.replace(/\s+/g, '-') %>">
+                    <%= cat %>
+                  </label>
+                </div>
+              </div>
+            <% } %>
+          </div>
+        </div>
+
         <div class="row">
           <div class="col-md-4 mb-3">
             <label for="price" class="form-label">Price</label>

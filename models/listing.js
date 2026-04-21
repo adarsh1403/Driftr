@@ -19,11 +19,15 @@ const listingSchema = new mongoose.Schema({
   price: Number,
   location: String,
   country: String,
+  category: {
+    type: [String],
+    enum: ["Trending", "Rooms", "Iconic Cities", "Mountains", "Castles", "Amazing Pools", "Camping", "Farms", "Arctic", "Domes", "Boats"]
+  },
   reviews: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Review",
-    }
+    },
   ],
   owner: {
     type: mongoose.Schema.Types.ObjectId,
@@ -53,7 +57,7 @@ listingSchema.post("findOneAndDelete", async function (listing) {
   }
 });
 
-// defining model for listing 
+// defining model for listing
 // Listing is a Mongoose model stored in a JS variable (of constant type)
 // Listing inside model() is the name of the model
 // Listing model of mongoose will be converted to "listings" (lowercase and plural) collection in MongoDB
