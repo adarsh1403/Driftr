@@ -13,6 +13,12 @@
     <div class="relative mb-8">
       <img src="<%= listing.image.url %>" alt="listing image" class="w-full h-80 object-cover rounded-xl shadow-sm">
       
+      <% if (!listing.isAvailable) { %>
+        <div class="absolute top-4 left-4 bg-zinc-900/90 text-white text-sm font-semibold px-4 py-2 rounded-lg backdrop-blur-sm shadow-sm z-10">
+          Not Available
+        </div>
+      <% } %>
+      
       <% if (currentUser) { %>
           <% const isSaved = currentUser.savedListings && currentUser.savedListings.some(id => id.equals(listing._id)) %>
           <form action="/listings/<%= listing._id %>/save" method="POST" class="absolute top-4 right-4 z-10 m-0">
@@ -43,10 +49,17 @@
         </div>
 
         <% if (currentUser && listing.owner._id.equals(currentUser._id)) { %>
-          <div class="flex gap-3 mb-8 pt-6 border-t border-zinc-200">
-            <a href="/listings/<%= listing._id %>/edit" class="bg-orange-700 text-white hover:bg-orange-800 rounded-lg px-5 py-2.5 text-sm font-medium transition-colors">Edit</a>
+          <div class="flex flex-wrap gap-3 mb-8 pt-6 border-t border-zinc-200">
+            <a href="/listings/<%= listing._id %>/edit" class="bg-orange-700 text-white hover:bg-orange-800 rounded-lg px-5 py-2.5 text-sm font-medium transition-colors text-center">Edit</a>
             <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE" class="m-0">
-              <button class="bg-zinc-900 text-white hover:bg-zinc-700 rounded-lg px-5 py-2.5 text-sm font-medium transition-colors">Delete</button>
+              <button class="bg-zinc-900 text-white hover:bg-zinc-700 rounded-lg px-5 py-2.5 text-sm font-medium transition-colors w-full text-center">Delete</button>
+            </form>
+            <form method="POST" action="/listings/<%= listing._id %>/toggle-availability?_method=PATCH" class="m-0">
+              <% if (listing.isAvailable) { %>
+                <button type="submit" class="border border-zinc-300 text-zinc-700 hover:bg-zinc-50 rounded-lg px-5 py-2.5 text-sm font-medium transition-colors w-full text-center">Mark as Booked</button>
+              <% } else { %>
+                <button type="submit" class="bg-green-600 text-white hover:bg-green-700 rounded-lg px-5 py-2.5 text-sm font-medium transition-colors w-full text-center">Mark as Available</button>
+              <% } %>
             </form>
           </div>
         <% } %>

@@ -118,3 +118,20 @@ module.exports.saveListing = async (req, res) => {
   const redirectUrl = req.get("Referrer") || "/listings/" + id;
   res.redirect(redirectUrl);
 };
+
+module.exports.toggleAvailability = async (req, res) => {
+  const { id } = req.params;
+  const listing = await Listing.findById(id);
+
+  // Flip the boolean value
+  listing.isAvailable = !listing.isAvailable;
+  await listing.save();
+
+  // Provide dynamic feedback based on the new state
+  if (listing.isAvailable) {
+    req.flash("success", "Your listing is now visible as Available!");
+  } else {
+    req.flash("success", "Your listing is marked as Booked/Not Available.");
+  }
+  res.redirect(`/listings/${id}`);
+};

@@ -28,10 +28,15 @@
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
   <% for(let listing of allListings) { %>
-    <a href="/listings/<%= listing._id %>" class="group block">
-      <div class="bg-white rounded-xl overflow-hidden border border-zinc-100 shadow-sm hover:shadow-md transition-all duration-200 h-full flex flex-col">
+    <div class="bg-white rounded-xl overflow-hidden border border-zinc-100 shadow-sm hover:shadow-md transition-all duration-200 h-full flex flex-col relative group">
+      <a href="/listings/<%= listing._id %>" class="flex-1 flex flex-col">
         <div class="overflow-hidden relative">
           <img src="<%= listing.image.url %>" alt="image" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300">
+          <% if (!listing.isAvailable) { %>
+            <div class="absolute top-3 left-3 bg-zinc-900/90 text-white text-xs font-semibold px-3 py-1.5 rounded-lg backdrop-blur-sm shadow-sm z-10">
+              Not Available
+            </div>
+          <% } %>
         </div>
         <div class="p-4 flex-1 flex flex-col">
           <h3 class="text-sm font-semibold text-zinc-900 mb-1 line-clamp-1"><%= listing.title %></h3>
@@ -40,8 +45,21 @@
             <i class="tax-info text-xs text-zinc-500" style="display: none;">&nbsp;+18% GST</i>
           </p>
         </div>
-      </div>
-    </a>
+      </a>
+      
+      <% if (currentUser) { %>
+          <% const isSaved = currentUser.savedListings && currentUser.savedListings.some(id => id.equals(listing._id)) %>
+          <form action="/listings/<%= listing._id %>/save" method="POST" class="absolute top-3 right-3 z-10 m-0">
+              <button type="submit" class="bg-transparent border-none p-1 transition-transform hover:scale-110 active:scale-95 focus:outline-none cursor-pointer">
+                  <% if (isSaved) { %>
+                      <i class="fa-solid fa-heart text-orange-600 text-2xl drop-shadow-md"></i> 
+                  <% } else { %>
+                      <i class="fa-regular fa-heart text-white text-2xl drop-shadow-[0_0_3px_rgba(0,0,0,0.5)]"></i> 
+                  <% } %>
+              </button>
+          </form>
+      <% } %>
+    </div>
   <% } %>
 </div>
 

@@ -39,5 +39,12 @@ router
   .route("/:id/edit")
   .get(isLoggedIn, isOwner, wrapAsync(listingController.renderEditForm));
 
+router.patch(
+  "/:id/toggle-availability",
+  isLoggedIn,
+  isOwner,
+  wrapAsync(listingController.toggleAvailability),
+);
+
 router.post("/:id/save", isLoggedIn, wrapAsync(listingController.saveListing));
 module.exports = router;

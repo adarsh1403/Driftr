@@ -21,7 +21,19 @@ const listingSchema = new mongoose.Schema({
   country: String,
   category: {
     type: [String],
-    enum: ["Trending", "Rooms", "Iconic Cities", "Mountains", "Castles", "Amazing Pools", "Camping", "Farms", "Arctic", "Domes", "Boats"]
+    enum: [
+      "Trending",
+      "Rooms",
+      "Iconic Cities",
+      "Mountains",
+      "Castles",
+      "Amazing Pools",
+      "Camping",
+      "Farms",
+      "Arctic",
+      "Domes",
+      "Boats",
+    ],
   },
   reviews: [
     {
@@ -43,6 +55,10 @@ const listingSchema = new mongoose.Schema({
       type: [Number],
       required: true,
     },
+  },
+  isAvailable: {
+    type: Boolean,
+    default: true,
   },
 });
 
