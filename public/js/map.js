@@ -6,6 +6,14 @@ const map = new mapboxgl.Map({
     zoom: 9 // starting zoom
 });
 
+// Create popup
+const popup = new mapboxgl.Popup({ offset: 25 })
+    .setHTML(`
+      <h4 style="font-weight: 600; margin-bottom: 4px; font-family: 'Inter', sans-serif;">${listingTitle}</h4>
+      <p style="font-size: 12px; margin: 0; color: #52525b; font-family: 'Inter', sans-serif;">Exact Location provided after booking</p>
+    `);
+
 const marker = new mapboxgl.Marker({ color: "red" })
     .setLngLat(coordinates)
+    .setPopup(popup) // attach popup to marker
     .addTo(map);

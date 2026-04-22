@@ -1,7 +1,10 @@
 <% layout("layouts/boilerplate") -%>
+  <!-- Store title in a data attribute to prevent IDE syntax highlighting errors -->
+  <div id="map-data" data-title="<%= listing.title %>" style="display: none;"></div>
   <script>
     let mapboxToken = "<%= process.env.MAPBOX_TOKEN %>";
     const coordinatesStr = "<%- JSON.stringify(listing.geometry.coordinates) %>";
+    const listingTitle = document.getElementById("map-data").getAttribute("data-title");
   </script>
 
   <div class="max-w-6xl mx-auto py-6">
