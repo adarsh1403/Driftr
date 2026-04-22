@@ -1,4 +1,5 @@
 const Listing = require("../models/listing.js");
+const User = require("../models/user.js");
 const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
 const mapBoxToken = process.env.MAPBOX_TOKEN;
 const baseClient = mbxGeocoding({ accessToken: mapBoxToken });
@@ -13,14 +14,14 @@ module.exports.index = async (req, res) => {
     let searchQuery = [
       { title: { $regex: q, $options: "i" } },
       { location: { $regex: q, $options: "i" } },
-      { country: { $regex: q, $options: "i" } }
+      { country: { $regex: q, $options: "i" } },
     ];
 
     let numVal = Number(q.trim());
     if (!isNaN(numVal) && q.trim() !== "") {
       searchQuery.push({ price: { $lte: numVal } });
     }
-    
+
     query.$or = searchQuery;
   }
   const allListings = await Listing.find(query);
@@ -91,4 +92,29 @@ module.exports.destroyListing = async (req, res) => {
   console.log(deletedListing);
   req.flash("success", "Successfully deleted the listing!");
   res.redirect("/listings");
+};
+
+module.exports.saveListing = async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findById(req.user._id);
+
+  // Check if the listing is already saved
+  // We use .includes() but convert ObjectIds to strings for safe comparison
+  const isSaved = user.savedListings.some((listingId) => listingId.equals(id));
+
+  if (isSaved) {
+    // If saved, remove it using Mongoose's .pull() array method
+    user.savedListings.pull(id);
+    req.flash("success", "Removed from your wishlist!");
+  } else {
+    // If not saved, add it
+    user.savedListings.push(id);
+    req.flash("success", "Added to your wishlist!");
+  }
+
+  await user.save();
+
+  // Redirect back to exactly where the user clicked the button (index or show page)
+  const redirectUrl = req.get("Referrer") || "/listings/" + id;
+  res.redirect(redirectUrl);
 };
