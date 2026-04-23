@@ -8,7 +8,7 @@
 .prettierignore
 
 ### vs code ###
-.vscode/*
+.vscode/
 
 ### NextJS ###
 # dependencies

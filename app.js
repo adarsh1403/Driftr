@@ -11,8 +11,6 @@ const app = express();
 // require mongoose package
 const mongoose = require("mongoose");
 
-
-
 // require node.js built-in path module.
 // It helps build safe, cross-platform file paths (Windows and Linux/Mac use different separators).
 const path = require("path");
@@ -20,13 +18,13 @@ const path = require("path");
 // require method-override package for using put/patch/delete request in html forms
 const methodOverride = require("method-override");
 
-// require ejs-mate package for easy sub-templating 
+// require ejs-mate package for easy sub-templating
 const ejsMate = require("ejs-mate");
 
 // define my mongodb database name and url
-const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+const dbUrl = process.env.ATLASDB_URI;
 
-// require custom error class 
+// require custom error class
 const ExpressError = require("./utils/ExpressError.js");
 
 // require listing routes
@@ -43,6 +41,7 @@ const bookingRoutes = require("./routes/booking.js");
 const dashboardRoutes = require("./routes/dashboard.js");
 
 const session = require("express-session");
+const { MongoStore } = require("connect-mongo");
 const flash = require("connect-flash");
 
 // require passport and passport-local for user authentication
@@ -51,8 +50,9 @@ const LocalStrategy = require("passport-local");
 
 // require user model for authentication
 const User = require("./models/user.js");
-
-
+const dns = require("dns");
+const { Store } = require("express-session");
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 // connecting to database  in asynchronous manner and defining the afterwork
 main()
@@ -63,9 +63,9 @@ main()
     console.log(err);
   });
 
-// function to connect to database 
+// function to connect to database
 async function main() {
-  await mongoose.connect(MONGO_URL);
+  await mongoose.connect(dbUrl);
 }
 
 // setting template engine to ejs so that express knows how to process ejs files in res.render()
@@ -89,8 +89,19 @@ app.engine("ejs", ejsMate);
 // middleware-> tells the express to serve static files (css,js,images,etc.) from current directory's public folder.
 app.use(express.static(path.join(__dirname, "public")));
 
+const store = MongoStore.create({
+  mongoUrl: dbUrl,
+  touchAfter: 24 * 60 * 60, // time period in seconds after which session will be updated in database even if it is not modified (to reduce database writes)
+  crypto: { secret: "thisshouldbeabettersecret!" }, // encrypts the session data in the database for security
+});
+
+store.on("error", function (e) {
+  console.log("SESSION STORE ERROR", e);
+});
+
 // middleware-> sets up session management with a secret key and configuration options.
 const sessionConfig = {
+  store: store,
   secret: "thisshouldbeabettersecret!",
   resave: false,
   saveUninitialized: true,
@@ -140,8 +151,7 @@ app.use((req, res, next) => {
 //   res.send("Fake user created");
 // });
 
-
-// using listing routes for all routes starting with /listings 
+// using listing routes for all routes starting with /listings
 app.use("/listings", listingRoutes);
 
 // using review routes for all routes starting with /listings/:id/reviews
@@ -166,7 +176,7 @@ app.use((err, req, res, next) => {
   res.status(statusCode).render("error.ejs", { message });
 });
 
-// server opened on port 8080 for listening 
+// server opened on port 8080 for listening
 app.listen(8080, () => {
   console.log("server is listening to port 8080");
 });
