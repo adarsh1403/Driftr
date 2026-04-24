@@ -9,8 +9,8 @@ module.exports.renderTrips = async (req, res) => {
 };
 
 module.exports.renderReservations = async (req, res) => {
-  const listings = await Listing.find({ owner: req.user._id }).select("_id");
-  const listingIds = listings.map((l) => l._id);
+  const listings = await Listing.find({ owner: req.user._id }).select("_id");  // Array of objects
+  const listingIds = listings.map((l) => l._id); // Extract just the IDs into an array
 
   const reservations = await Booking.find({ listing: { $in: listingIds } })
     .populate("listing")

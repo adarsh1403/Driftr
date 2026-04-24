@@ -2,7 +2,7 @@
 
 /* Hide scrollbar for horizontal scrolling containers (like the filter chips) */
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;
+  display: none; /* for Chrome, Safari, and Opera */
 }
 .scrollbar-hide {
   -ms-overflow-style: none; /* IE and Edge */

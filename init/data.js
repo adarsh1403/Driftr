@@ -350,7 +350,7 @@ const sampleListings = [
     country: "Costa Rica",
   },
 ];
-
+// Helper function to get random subset of amenities 
 const getRandomAmenities = (arr) => {
   const shuffled = [...arr].sort(() => 0.5 - Math.random());
   const numAmenities = Math.floor(Math.random() * arr.length) + 1;

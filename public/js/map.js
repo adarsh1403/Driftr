@@ -13,6 +13,7 @@ const popup = new mapboxgl.Popup({ offset: 25 })
       <p style="font-size: 12px; margin: 0; color: #52525b; font-family: 'Inter', sans-serif;">Exact Location provided after booking</p>
     `);
 
+// Create marker and add to map    
 const marker = new mapboxgl.Marker({ color: "red" })
     .setLngLat(coordinates)
     .setPopup(popup) // attach popup to marker

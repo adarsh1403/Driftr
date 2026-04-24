@@ -1,5 +1,6 @@
 const helmet = require("helmet");
 
+// Custom Helmet configuration to allow resources from trusted sources
 module.exports = helmet({
   referrerPolicy: { policy: "same-origin" },
   contentSecurityPolicy: {
@@ -32,10 +33,10 @@ module.exports = helmet({
         "https://images.unsplash.com",
         "https://plus.unsplash.com",
         "https://source.unsplash.com",
-        "data:",
-        "blob:",
+        "data:", // for inline images (e.g., from Mapbox GL JS markers)
+        "blob:", // for Mapbox GL JS map tiles
       ],
-      workerSrc: ["blob:"],
+      workerSrc: ["blob:"], // for Mapbox GL JS web workers
       connectSrc: [
         "'self'",
         "https://api.mapbox.com",

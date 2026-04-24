@@ -1,3 +1,4 @@
+// Utility function to calculate average rating from an array of reviews
 module.exports.getAverageRating = (reviews) => {
   if (!reviews || reviews.length === 0) return 0;
   

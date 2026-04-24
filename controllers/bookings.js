@@ -61,6 +61,7 @@ module.exports.createBooking = async (req, res) => {
   res.redirect("/trips");
 };
 
+// returns an array of booked date ranges for a listing in the format [{ from: Date, to: Date }, ...]
 module.exports.getBookedDates = async (req, res) => {
   const { id } = req.params;
 

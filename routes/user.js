@@ -6,11 +6,15 @@ const { saveRedirectUrl } = require("../middleware.js");
 const { authLimiter } = require("../config/rateLimiter.js");
 const userController = require("../controllers/users.js");
 
+// GET /signup - Show signup form
+// POST /signup - Handle user registration
 router
   .route("/signup")
   .get(userController.renderSignupForm)
   .post(authLimiter, wrapAsync(userController.signup));
 
+// GET /login - Show login form
+// POST /login - Handle user login
 router
   .route("/login")
   .get(userController.renderLoginForm)
@@ -24,6 +28,7 @@ router
     userController.login
   );
 
+// GET /logout - Handle user logout
 router.route("/logout").get(userController.logout);
 
 module.exports = router;

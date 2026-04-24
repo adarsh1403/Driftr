@@ -4,6 +4,7 @@ const Review = require("./models/review.js");
 const ExpressError = require("./utils/ExpressError");
 const { listingSchema, reviewSchema, bookingSchema } = require("./schema.js");
 
+// Middleware -> Authentication 
 module.exports.isLoggedIn = (req, res, next) => {
   if (!req.isAuthenticated()) {
     req.session.redirectUrl = req.originalUrl;
@@ -13,6 +14,7 @@ module.exports.isLoggedIn = (req, res, next) => {
   next();
 };
 
+// Middleware -> Save intended URL for redirect after login
 module.exports.saveRedirectUrl = (req, res, next) => {
   if (req.session.redirectUrl) {
     res.locals.redirectUrl = req.session.redirectUrl;
@@ -21,6 +23,7 @@ module.exports.saveRedirectUrl = (req, res, next) => {
   next();
 };
 
+// Middleware -> Authorization
 module.exports.isOwner = async (req, res, next) => {
   const { id } = req.params;
   const listing = await Listing.findById(id).populate("owner");
@@ -61,6 +64,7 @@ module.exports.sanitizeReview = (req, res, next) => {
   next();
 };
 
+// Validation middleware using Joi schemas
 module.exports.validateListing = (req, res, next) => {
   const { error } = listingSchema.validate(req.body);
   if (error) {

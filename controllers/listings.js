@@ -5,20 +5,22 @@ const { getAverageRating } = require("../utils/rating.js");
 
 const baseClient = mbxGeocoding({ accessToken: process.env.MAPBOX_TOKEN });
 
-// Escape special regex characters to prevent ReDoS attacks
+// Escape special regex characters to prevent ReDoS attacks and ensure literal search | c++ -> c\+\+ 
 const escapeRegex = (str) => str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 
 module.exports.index = async (req, res) => {
   const { category, amenities, q, page = 1 } = req.query;
   let query = {};
 
+  // Filter by category and amenities if provided
   if (category) query.category = category;
   if (amenities) query.amenities = amenities;
 
+  // Search by title, location, country, or price if q is provided
   if (q) {
     const safeQ = escapeRegex(q.trim());
     const searchQuery = [
-      { title: { $regex: safeQ, $options: "i" } },
+      { title: { $regex: safeQ, $options: "i" } }, // $options: "i" for case-insensitive search
       { location: { $regex: safeQ, $options: "i" } },
       { country: { $regex: safeQ, $options: "i" } },
     ];
@@ -29,10 +31,12 @@ module.exports.index = async (req, res) => {
     query.$or = searchQuery;
   }
 
+  // Pagination setup
   const limit = 12;
 
   const totalListings = await Listing.countDocuments(query);
   const totalPages = Math.ceil(totalListings / limit);
+  // Ensure page number is within valid range
   const currentPage = Math.min(
     Math.max(parseInt(page) || 1, 1),
     totalPages || 1,
@@ -43,8 +47,9 @@ module.exports.index = async (req, res) => {
     .populate("reviews")
     .skip(skip)
     .limit(limit)
-    .lean();
+    .lean(); // returns plain JS objects instead of Mongoose documents for better performance when we only need to read data
 
+  // Compute average rating for each listing     
   const allListings = listings.map((listing) => ({
     ...listing,
     avgRating: getAverageRating(listing.reviews),
@@ -67,7 +72,7 @@ module.exports.renderNewForm = (req, res) => {
 module.exports.showListing = async (req, res) => {
   const { id } = req.params;
   const listing = await Listing.findById(id)
-    .populate({ path: "reviews", populate: { path: "author" } })
+    .populate({ path: "reviews", populate: { path: "author" } }) // nested populate to get review authors
     .populate("owner");
 
   if (!listing) {
@@ -80,6 +85,7 @@ module.exports.showListing = async (req, res) => {
 };
 
 module.exports.createListing = async (req, res) => {
+  // Geocode the location 
   const response = await baseClient
     .forwardGeocode({ query: req.body.listing.location, limit: 1 })
     .send();
@@ -92,13 +98,13 @@ module.exports.createListing = async (req, res) => {
     );
     return res.redirect("/listings/new");
   }
-
+  // Create new listing with owner
   const newListing = new Listing({ ...req.body.listing, owner: req.user._id });
-
+  // Add image if uploaded
   if (req.file) {
     newListing.image = { url: req.file.path, filename: req.file.filename };
   }
-
+  // Set geocoded coordinates
   newListing.geometry = response.body.features[0].geometry;
   await newListing.save();
 
@@ -120,6 +126,7 @@ module.exports.updateListing = async (req, res) => {
   const { id } = req.params;
   const listing = await Listing.findByIdAndUpdate(id, { ...req.body.listing });
 
+  // Update Image if a new one is uploaded
   if (req.file) {
     listing.image = { url: req.file.path, filename: req.file.filename };
     await listing.save();
@@ -151,6 +158,7 @@ module.exports.saveListing = async (req, res) => {
 
   await user.save();
   const referer = req.get("Referer") || "/listings";
+  // Resolved: Error handling for flash message not showing due to redirect before session save completes
   req.session.save(() => {
     // Ensure flash message is saved before redirecting
     res.redirect(referer);

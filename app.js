@@ -64,7 +64,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // Security middleware
 app.use(globalLimiter);
 
-// The error was coming from express-mongo-sanitize trying to write back to req.query on Express 5, where that property is read-only by default. I fixed it in app.js by making req.query a writable own property before the sanitizer runs, so the middleware can keep doing its job without crashing.
+// Resolved: The error was coming from express-mongo-sanitize trying to write back to req.query on Express 5, where that property is read-only by default. I fixed it in app.js by making req.query a writable own property before the sanitizer runs, so the middleware can keep doing its job without crashing.
 app.use((req, _res, next) => {
   const query = req.query;
   Object.defineProperty(req, "query", {
@@ -85,7 +85,7 @@ initPassport();
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Make flash messages and current user available to all templates
+// Make flash messages, current user and categories/amenities available to all templates
 app.use((req, res, next) => {
   res.locals.success = req.flash("success") || [];
   res.locals.error = req.flash("error") || [];
@@ -105,10 +105,12 @@ app.use("/listings/:id/bookings", bookingRoutes);
 app.use("/", userRoutes);
 app.use("/", dashboardRoutes);
 
+// 404 handler
 app.all("/{*splat}", (req, res, next) => {
   next(new ExpressError("Page Not Found", 404));
 });
 
+// Global error handler
 app.use((err, req, res, next) => {
   const { statusCode = 500, message = "Something went wrong!" } = err;
   res.status(statusCode).render("error.ejs", { message });

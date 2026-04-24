@@ -1,5 +1,6 @@
 const { MongoStore } = require("connect-mongo");
 
+// Creates session configuration with MongoDB store
 const createSessionConfig = (dbUrl) => {
   const store = MongoStore.create({
     mongoUrl: dbUrl,

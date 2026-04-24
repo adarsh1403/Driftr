@@ -9,7 +9,7 @@ const reviewSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now, // reference, not invocation — called per-document at creation time
+    default: Date.now, // Resolved: Previously was Date.now() which caused all reviews to have the same timestamp which was the start time of the server. Now it will call the function to get the current time for each review.
   },
   author: {
     type: mongoose.Schema.Types.ObjectId,

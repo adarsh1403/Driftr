@@ -14,6 +14,7 @@ const MAPBOX_TOKEN = process.env.MAPBOX_TOKEN;
 
 const geocoder = mbxGeocoding({ accessToken: MAPBOX_TOKEN });
 
+// Geocode a place based on its location and country
 async function geocodePlace(location, country) {
   const query = [location, country].filter(Boolean).join(", ");
   const resp = await geocoder.forwardGeocode({ query, limit: 1 }).send();
